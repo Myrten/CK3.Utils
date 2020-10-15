@@ -6,7 +6,7 @@ using CK3.Utils.BattleSimulator.Data;
 
 namespace CK3.Utils.BattleSimulator.Simulation
 {
-    public class Army :IEnumerable<KeyValuePair<Regiment,int>>
+    public class Army :IEnumerable<KeyValuePair<Regiment,double>>
     {
         public string Name { get;  }
         public Army(string name)
@@ -16,13 +16,20 @@ namespace CK3.Utils.BattleSimulator.Simulation
 
         public void Add(Regiment regiment, int value)
         {
+            InitialStrength += value;
             ArmyStrength += value;
-            Troops.Add(regiment, value);
+            Regiments.Add(regiment, value);
         }
 
-        public Dictionary<Regiment, int> Troops { get; set; } = new Dictionary<Regiment, int>();
+        public Dictionary<Regiment, double> Regiments { get; set; } = new Dictionary<Regiment, double>();
 
-        public int ArmyStrength
+        public double InitialStrength
+        {
+            get;
+            private set;
+        }
+
+        public double ArmyStrength
         {
             get;
             private set;
@@ -34,7 +41,7 @@ namespace CK3.Utils.BattleSimulator.Simulation
                 return 0.0;
 
             var damage = 0.0;
-            foreach (var regiment in Troops)
+            foreach (var regiment in Regiments)
             {
                 damage += regiment.Value * regiment.Key.Damage * BattleSimulationConstants.DamageMultiplier;
             }
@@ -42,27 +49,25 @@ namespace CK3.Utils.BattleSimulator.Simulation
             
             if (ArmyStrength > combatWidth)
             {
-                damage = damage * (combatWidth / ArmyStrength);
+                damage *= (combatWidth / ArmyStrength);
             }
 
             return damage;
         }
 
 
-        public double ApplyDamageAndGetlosses(double damage)
+        public double ApplyDamageAndGetLosses(double damage)
         {
             var initialArmyStrength = ArmyStrength;
             
-            foreach (var unit in Troops.ToArray())
+            foreach (var unit in Regiments.ToArray())
             {
                 var unitShare = unit.Value / initialArmyStrength;
                 var unitDamage =  damage * unitShare;
-                var losses = unitDamage / unit.Key.Toughness;
-                var newStrength = Math.Max(0, unit.Value - losses);
-                var newArmyStrength = Math.Max(0, ArmyStrength - losses);
-
-                Troops[unit.Key] = (int) newStrength;
-                ArmyStrength = (int) newArmyStrength;
+                var unitLosses = unitDamage / unit.Key.Toughness;
+                var newUnitStrength = Math.Max(0, unit.Value - unitLosses);
+                ArmyStrength = Math.Max(0, ArmyStrength - (unit.Value-newUnitStrength));
+                Regiments[unit.Key] = newUnitStrength;
             }
 
             return initialArmyStrength - ArmyStrength;
@@ -70,12 +75,12 @@ namespace CK3.Utils.BattleSimulator.Simulation
 
         public override string ToString()
         {
-            return $"{Name} : {ArmyStrength}";
+            return $"{Name} : {ArmyStrength:N0}";
         }
 
-        public IEnumerator<KeyValuePair<Regiment, int>> GetEnumerator()
+        public IEnumerator<KeyValuePair<Regiment, double>> GetEnumerator()
         {
-            return Troops.GetEnumerator();
+            return Regiments.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

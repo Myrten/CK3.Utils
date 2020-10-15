@@ -7,9 +7,14 @@ namespace CK3.Utils.BattleSimulator.Simulation
         public Regiment Regiment { get; set; }
         public int Value { get; set; }
 
+        public int Lost { get; set; }
+
+        public int Killed { get; set; }
+
         public override string ToString()
         {
-            return $"{Regiment} - {Value} stacks of {Regiment.Stack} - {Value*Regiment.Stack} Total";
+            
+            return $"{Regiment,-18}[{Regiment.Damage,-4}D {Regiment.Toughness,-3}T] - {Value,-6} stacks of {Regiment.Stack,-3} - {Value*Regiment.Stack,-6} soldiers";
         }
     }
 }

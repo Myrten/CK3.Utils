@@ -9,6 +9,7 @@ namespace CK3.Utils.BattleSimulator
 {
     class Program
     {
+        const int TestLevySize = 100000;
         static void Main(string[] args)
         {
             //change it to your game path
@@ -26,33 +27,38 @@ namespace CK3.Utils.BattleSimulator
             var simulator = new Simulation.BattleSimulator();
             var results = new List<SimulationResult>();
 
-            foreach (var regiment in regiments.Where(regiment => regiment.Damage != 0))
-            {
-                //start from single regiment 
-                for (int i = 1; ; i++)
-                {
-                    var levyArmy = new Army("Levy army") { { Regiment.Levies, 150000 } }; //compare with 150k levies
+            var regimentsToTest = regiments.Where(regiment => regiment.Damage != 0).ToArray();
 
-                    var regimentArmy = new Army(regiment.LocalizedName + " army") {{regiment, i*regiment.Stack}};
-                    var victor =  simulator.SimulateBattle(regimentArmy, levyArmy);
-                    
+            for (var i = 0; i < regimentsToTest.Length; i++)
+            {
+                var regiment = regimentsToTest[i];
+                //Console.Write("\r" + new string(' ', Console.WindowWidth));
+                Console.Write($"\rSimulating {i}/{regimentsToTest.Length}");
+                //start from single regiment 
+                for (int j = 1;; j++)
+                {
+                    var levyArmy = new Army("Levy army") {{Regiment.Levies, TestLevySize } }; //compare with TestLevySize levies
+
+                    var regimentArmy = new Army(regiment.LocalizedName + " army") {{regiment, j * regiment.Stack}};
+                    var victor = simulator.SimulateBattle(regimentArmy, levyArmy);
+
                     //increase number of regiments for as long as levies win
                     if (victor != regimentArmy) continue;
-                    
-                    //save resu;t
-                    var result = new SimulationResult() {Regiment = regiment, Value = i};
+
+                    //save result
+                    var result = new SimulationResult() {Regiment = regiment, Value = j};
                     results.Add(result);
                     break;
                 }
             }
+            Console.Clear();
 
-
-            //order results from best to worst and print on consoe
+            //order results from best to worst and print on console
             results = results.OrderBy(r => r.Value).ToList();
 
             foreach (var simulationResult in results)
             {
-                Console.WriteLine(simulationResult);
+                Console.WriteLine($"{simulationResult} | 1 regiment = {Math.Round((double)TestLevySize/simulationResult.Value,0):N0} levies");
             }
         }
     }
