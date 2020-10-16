@@ -10,6 +10,14 @@
             LocalizedName = "Levies"
         };
 
+        public static Regiment UnarmedLevies { get; } = new Regiment()
+        {
+            Damage = 0,
+            Toughness = 10,
+            Name = "levies",
+            LocalizedName = "Levies"
+        };
+
         public static Regiment Knights15Prowess { get; } = new Regiment()
         {
             Damage = 100 * 15,
