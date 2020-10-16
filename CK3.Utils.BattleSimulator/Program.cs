@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using CK3.Utils.BattleSimulator.Data;
 using CK3.Utils.BattleSimulator.DataExtraction;
@@ -12,6 +13,7 @@ namespace CK3.Utils.BattleSimulator
         const int TestLevySize = 100000;
         static void Main(string[] args)
         {
+            CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
             //change it to your game path
             const string gamePath = @"D:\Steam\steamapps\common\Crusader Kings III\";
 
@@ -46,7 +48,7 @@ namespace CK3.Utils.BattleSimulator
                     if (victor != regimentArmy) continue;
 
                     //save result
-                    var result = new SimulationResult() {Regiment = regiment, Value = j};
+                    var result = new SimulationResult() {Regiment = regiment, Count = j, Killed = levyArmy.GetFatalCasualties(), Lost = regimentArmy.GetFatalCasualties()};
                     results.Add(result);
                     break;
                 }
@@ -54,11 +56,14 @@ namespace CK3.Utils.BattleSimulator
             Console.Clear();
 
             //order results from best to worst and print on console
-            results = results.OrderBy(r => r.Value).ToList();
+            results = results.OrderBy(r => r.Count).ToList();
 
             foreach (var simulationResult in results)
             {
-                Console.WriteLine($"{simulationResult} | 1 regiment = {Math.Round((double)TestLevySize/simulationResult.Value,0):N0} levies");
+                Console.WriteLine($"{simulationResult} | 1 regiment = {Math.Round((double)TestLevySize/simulationResult.Count,0),-3:N0} levies " +
+                                  $"| Lost {simulationResult.Lost/((double)simulationResult.Count*simulationResult.Regiment.Stack):P2} soldiers Killed {simulationResult.Killed,-6} levies" +
+                                  //$"Metric = {simulationResult.Regiment.Stack* Math.Sqrt(simulationResult.Regiment.Damage*simulationResult.Regiment.Toughness):F0}" +
+                                  $"");
             }
         }
     }

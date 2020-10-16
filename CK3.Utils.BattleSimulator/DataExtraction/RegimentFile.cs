@@ -2,7 +2,7 @@
 using CK3.Utils.BattleSimulator.Data;
 using Pdoxcl2Sharp;
 
-namespace CK3.Utils.BattleSimulator.FileReading
+namespace CK3.Utils.BattleSimulator.DataExtraction
 {
     public class RegimentFile :  IParadoxRead
     {

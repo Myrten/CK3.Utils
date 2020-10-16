@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using CK3.Utils.BattleSimulator.Data;
-using CK3.Utils.BattleSimulator.FileReading;
 using Pdoxcl2Sharp;
 
 namespace CK3.Utils.BattleSimulator.DataExtraction

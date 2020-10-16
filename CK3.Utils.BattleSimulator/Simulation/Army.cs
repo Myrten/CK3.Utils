@@ -6,7 +6,7 @@ using CK3.Utils.BattleSimulator.Data;
 
 namespace CK3.Utils.BattleSimulator.Simulation
 {
-    public class Army :IEnumerable<KeyValuePair<Regiment,double>>
+    public class Army :IEnumerable<ArmyRegiment>
     {
         public string Name { get;  }
         public Army(string name)
@@ -14,19 +14,16 @@ namespace CK3.Utils.BattleSimulator.Simulation
             Name = name;
         }
 
-        public void Add(Regiment regiment, int value)
+        public List<ArmyRegiment> ArmyRegiments { get; } = new List<ArmyRegiment>();
+
+        public void Add(ArmyRegiment armyRegiment)
         {
-            InitialStrength += value;
-            ArmyStrength += value;
-            Regiments.Add(regiment, value);
+            ArmyRegiments.Add(armyRegiment);
+            ArmyStrength = ArmyRegiments.Sum(ar => ar.Strength);
         }
-
-        public Dictionary<Regiment, double> Regiments { get; set; } = new Dictionary<Regiment, double>();
-
-        public double InitialStrength
+        public void Add(Regiment regiment, int strength)
         {
-            get;
-            private set;
+            Add(new ArmyRegiment(regiment, strength));
         }
 
         public double ArmyStrength
@@ -40,12 +37,7 @@ namespace CK3.Utils.BattleSimulator.Simulation
             if (ArmyStrength == 0)
                 return 0.0;
 
-            var damage = 0.0;
-            foreach (var regiment in Regiments)
-            {
-                damage += regiment.Value * regiment.Key.Damage * BattleSimulationConstants.DamageMultiplier;
-            }
-
+            var damage = ArmyRegiments.Sum(ar=>ar.GetDamage());
             
             if (ArmyStrength > combatWidth)
             {
@@ -55,22 +47,69 @@ namespace CK3.Utils.BattleSimulator.Simulation
             return damage;
         }
 
+        public double GetPursuitDamage()
+        {
+            return ArmyRegiments.Sum(ar => ar.GetPursuitDamage());
+        }
 
-        public double ApplyDamageAndGetLosses(double damage)
+        public int GetFatalCasualties()
+        {
+            return (int) ArmyRegiments.Sum(ar => ar.FatalCasualties);
+        }
+
+        public void ApplyDamage(double damage)
         {
             var initialArmyStrength = ArmyStrength;
-            
-            foreach (var unit in Regiments.ToArray())
+            var newArmyStrength = 0.0;
+
+            foreach (var armyRegiment in ArmyRegiments)
             {
-                var unitShare = unit.Value / initialArmyStrength;
-                var unitDamage =  damage * unitShare;
-                var unitLosses = unitDamage / unit.Key.Toughness;
-                var newUnitStrength = Math.Max(0, unit.Value - unitLosses);
-                ArmyStrength = Math.Max(0, ArmyStrength - (unit.Value-newUnitStrength));
-                Regiments[unit.Key] = newUnitStrength;
+                armyRegiment.ApplyDamage(damage,initialArmyStrength);
+                newArmyStrength += armyRegiment.Strength;
             }
 
-            return initialArmyStrength - ArmyStrength;
+            ArmyStrength = newArmyStrength;
+        }
+
+        public void ApplyPursuitDamage(double totalEnemyPursuit)
+        {
+            ArmyStrength = 0;
+            var initialRouted = new Dictionary<ArmyRegiment, double>();
+            foreach (var armyRegiment in ArmyRegiments)
+            {
+                armyRegiment.RoutAll();
+                initialRouted[armyRegiment] = armyRegiment.RoutedCasualties;
+            }
+
+            var dailyDamageFromEnemyPursuit = (totalEnemyPursuit * BattleSimulationConstants.PursuitEfficiency) / BattleSimulationConstants.PursuitDays;
+            
+            for (int i = 0; i < BattleSimulationConstants.PursuitDays; i++)
+            {
+                var totalScreen = 0.0;
+                var totalRouted = 0.0;
+                var totalToughness = 0.0;
+
+                foreach (var armyRegiment in ArmyRegiments)
+                {
+                    totalScreen += armyRegiment.RoutedCasualties * armyRegiment.Regiment.Screen;
+                    totalToughness += armyRegiment.RoutedCasualties * armyRegiment.Regiment.Toughness;
+                    totalRouted += armyRegiment.RoutedCasualties;
+                }
+                if(totalRouted == 0)
+                    return;
+
+                var totalPassiveDamage = (BattleSimulationConstants.LeftBehindRatio * totalToughness) / BattleSimulationConstants.PursuitDays;
+
+                var totalDamage = dailyDamageFromEnemyPursuit + totalPassiveDamage;
+
+                foreach (var armyRegiment in ArmyRegiments)
+                {
+                    var share = initialRouted[armyRegiment] / totalRouted;
+                    var damage = Math.Max(totalDamage * share - totalScreen * share,0);
+                    
+                    armyRegiment.ApplyPursuitDamage(damage);
+                }
+            }
         }
 
         public override string ToString()
@@ -78,9 +117,9 @@ namespace CK3.Utils.BattleSimulator.Simulation
             return $"{Name} : {ArmyStrength:N0}";
         }
 
-        public IEnumerator<KeyValuePair<Regiment, double>> GetEnumerator()
+        public IEnumerator<ArmyRegiment> GetEnumerator()
         {
-            return Regiments.GetEnumerator();
+            return ArmyRegiments.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

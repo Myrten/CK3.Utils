@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace CK3.Utils.BattleSimulator.FileReading
+namespace CK3.Utils.BattleSimulator.DataExtraction
 {
     public class RegimentLocalization
     {

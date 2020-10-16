@@ -5,7 +5,7 @@ namespace CK3.Utils.BattleSimulator.Simulation
     public class SimulationResult
     {
         public Regiment Regiment { get; set; }
-        public int Value { get; set; }
+        public int Count { get; set; }
 
         public int Lost { get; set; }
 
@@ -14,7 +14,7 @@ namespace CK3.Utils.BattleSimulator.Simulation
         public override string ToString()
         {
             
-            return $"{Regiment,-18}[{Regiment.Damage,-4}D {Regiment.Toughness,-3}T] - {Value,-6} stacks of {Regiment.Stack,-3} - {Value*Regiment.Stack,-6} soldiers";
+            return $"{Regiment,-18}[{Regiment.Damage,-4}D {Regiment.Toughness,-3}T] - {Count,-6} stacks of {Regiment.Stack,-3} - {Count*Regiment.Stack,-6} soldiers";
         }
     }
 }

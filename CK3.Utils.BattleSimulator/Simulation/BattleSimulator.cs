@@ -2,7 +2,7 @@
 {
     public class BattleSimulator
     {
-        const double AliveThreshold = 0.9;
+        const double AliveThreshold = 0.1;
 
         /// <summary>
         /// Simulates battle between two armies
@@ -19,9 +19,24 @@
                 var aDamage = a.GetDamage(combatWidth);
                 var bDamage = b.GetDamage(combatWidth);
 
-                a.ApplyDamageAndGetLosses(bDamage);
-                b.ApplyDamageAndGetLosses(aDamage);
+                a.ApplyDamage(bDamage);
+                b.ApplyDamage(aDamage);
             }
+
+            Army winner, loser;
+
+            if (a.ArmyStrength > AliveThreshold)
+            {
+                winner = a;
+                loser = b;
+            }
+            else
+            {
+                winner = b;
+                loser = a;
+            }
+            
+            loser.ApplyPursuitDamage(winner.GetPursuitDamage());
 
             return a.ArmyStrength > AliveThreshold ? a : b;
         }
