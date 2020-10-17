@@ -95,6 +95,9 @@ namespace CK3.Utils.BattleSimulator.Simulation
                     totalToughness += armyRegiment.RoutedCasualties * armyRegiment.Regiment.Toughness;
                     totalRouted += armyRegiment.RoutedCasualties;
                 }
+
+                totalScreen /= BattleSimulationConstants.PursuitDays;
+
                 if(totalRouted == 0)
                     return;
 
