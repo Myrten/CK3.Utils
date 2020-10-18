@@ -57,5 +57,12 @@ namespace CK3.Utils.BattleSimulator.Simulation
             RoutedCasualties -= kills;
             FatalCasualties += kills;
         }
+
+        public void ApplyPostBattleRounding()
+        {
+            Strength = Math.Round(Strength);
+            RoutedCasualties = Math.Round(RoutedCasualties);
+            FatalCasualties = Math.Round(FatalCasualties);
+        }
     }
 }

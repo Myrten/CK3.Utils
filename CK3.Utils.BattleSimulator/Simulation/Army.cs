@@ -115,6 +115,18 @@ namespace CK3.Utils.BattleSimulator.Simulation
             }
         }
 
+        public void ApplyPostBattleRounding()
+        {
+            ArmyStrength = 0;
+            foreach (var armyRegiment in ArmyRegiments)
+            {
+                armyRegiment.ApplyPostBattleRounding();
+                ArmyStrength += armyRegiment.Strength;
+            }
+
+            ArmyStrength = Math.Round(ArmyStrength);
+        }
+
         public override string ToString()
         {
             return $"{Name} : {ArmyStrength:N0}";

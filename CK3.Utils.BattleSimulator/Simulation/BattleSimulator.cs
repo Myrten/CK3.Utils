@@ -38,6 +38,9 @@
             
             loser.ApplyPursuitDamage(winner.GetPursuitDamage());
 
+            a.ApplyPostBattleRounding();
+            b.ApplyPostBattleRounding();
+
             return a.ArmyStrength > AliveThreshold ? a : b;
         }
     }
