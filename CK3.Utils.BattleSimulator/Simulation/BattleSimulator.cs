@@ -4,7 +4,7 @@ namespace CK3.Utils.BattleSimulator.Simulation
 {
     public class BattleSimulator
     {
-        const double AliveThreshold = 0.1;
+        const double AliveThreshold = 0.01;
 
         /// <summary>
         /// Simulates battle between two armies
@@ -40,7 +40,7 @@ namespace CK3.Utils.BattleSimulator.Simulation
                 loser = a;
             }
 
-            if (days < 14)
+            if (days < BattleSimulationConstants.EarlyPhaseDays)
                 loser.Wipe();
             else
                 loser.ApplyPursuitDamage(winner.GetPursuitDamage());

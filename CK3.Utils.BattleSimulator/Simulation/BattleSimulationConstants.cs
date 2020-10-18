@@ -8,5 +8,6 @@
         public const int PursuitDays = 3;
         public const double PursuitEfficiency = 0.5;
         public const double MinimunDailyPursuitLosses = 0.00333;
+        public const int EarlyPhaseDays = 12;
     }
 }
