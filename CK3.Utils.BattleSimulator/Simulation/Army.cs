@@ -127,6 +127,15 @@ namespace CK3.Utils.BattleSimulator.Simulation
             ArmyStrength = Math.Round(ArmyStrength);
         }
 
+        public void Wipe()
+        {
+            ArmyStrength = 0;
+            foreach (var armyRegiment in ArmyRegiments)
+            {
+                armyRegiment.Wipe();
+            }
+        }
+
         public override string ToString()
         {
             return $"{Name} : {ArmyStrength:N0}";

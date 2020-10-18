@@ -11,6 +11,8 @@ namespace CK3.Utils.BattleSimulator.Simulation
 
         public int Killed { get; set; }
 
+        public int Days { get; set; }
+
         public bool Won { get; set; }
         public override string ToString()
         {

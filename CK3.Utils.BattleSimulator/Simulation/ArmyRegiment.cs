@@ -45,6 +45,14 @@ namespace CK3.Utils.BattleSimulator.Simulation
             RoutedCasualties += (regimentCasualties - fatal);
         }
 
+        public void Wipe()
+        {
+            FatalCasualties += Strength;
+            FatalCasualties += RoutedCasualties;
+            RoutedCasualties = 0;
+            Strength = 0;
+        }
+
         public void RoutAll()
         {
             RoutedCasualties += Strength;

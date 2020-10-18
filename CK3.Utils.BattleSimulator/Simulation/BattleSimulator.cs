@@ -1,4 +1,6 @@
-﻿namespace CK3.Utils.BattleSimulator.Simulation
+﻿using System.Diagnostics.Tracing;
+
+namespace CK3.Utils.BattleSimulator.Simulation
 {
     public class BattleSimulator
     {
@@ -10,9 +12,10 @@
         /// <param name="a">First army</param>
         /// <param name="b">Second army</param>
         /// <returns>Army that won</returns>
-        public Army SimulateBattle(Army a, Army b)
+        public BattleResult SimulateBattle(Army a, Army b)
         {
             var combatWidth = (a.ArmyStrength + b.ArmyStrength) / 2;
+            var days = 1;
             while (a.ArmyStrength > AliveThreshold && b.ArmyStrength > AliveThreshold)
             {
                 
@@ -21,6 +24,7 @@
 
                 a.ApplyDamage(bDamage);
                 b.ApplyDamage(aDamage);
+                days++;
             }
 
             Army winner, loser;
@@ -35,13 +39,22 @@
                 winner = b;
                 loser = a;
             }
-            
-            loser.ApplyPursuitDamage(winner.GetPursuitDamage());
+
+            if (days < 14)
+                loser.Wipe();
+            else
+                loser.ApplyPursuitDamage(winner.GetPursuitDamage());
+
 
             a.ApplyPostBattleRounding();
             b.ApplyPostBattleRounding();
 
-            return a.ArmyStrength > AliveThreshold ? a : b;
+            return new BattleResult()
+            {
+                Days = days,
+                Winner = winner,
+                Loser = loser
+            };
         }
     }
 }

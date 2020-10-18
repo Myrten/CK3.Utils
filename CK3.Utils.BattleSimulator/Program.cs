@@ -54,17 +54,18 @@ namespace CK3.Utils.BattleSimulator
                     var levyArmy = new Army("Levy army") {{Regiment.Levies, TestLevySize}}; //compare with TestLevySize levies
 
                     var regimentArmy = new Army(regiment.LocalizedName + " army") {{regiment, j * regiment.Stack}};
-                    var victor = simulator.SimulateBattle(regimentArmy, levyArmy);
+                    var battleResult = simulator.SimulateBattle(regimentArmy, levyArmy);
 
                     //increase number of regiments for as long as levies win
-                    if (victor != regimentArmy) continue;
+                    if (battleResult.Winner != regimentArmy) continue;
 
                     //save result
                     var result = new SimulationResult()
                     {
                         Regiment = regiment, Count = j, Killed = levyArmy.GetFatalCasualties(),
                         Lost = regimentArmy.GetFatalCasualties(),
-                        Won = true
+                        Won = true,
+                        Days = battleResult.Days
                     };
                     results.Add(result);
                     break;
@@ -82,7 +83,7 @@ namespace CK3.Utils.BattleSimulator
                     $"{simulationResult} | 1 regiment = {Math.Round((double) TestLevySize / simulationResult.Count, 0),-3:N0} levies " +
                     $"| Lost {simulationResult.Lost / ((double) simulationResult.Count * simulationResult.Regiment.Stack):P2} soldiers Killed {simulationResult.Killed,-6} levies" +
                     //$"Metric = {simulationResult.Regiment.Stack* Math.Sqrt(simulationResult.Regiment.Damage*simulationResult.Regiment.Toughness):F0}" +
-                    $"");
+                    $" | {simulationResult.Days} days");
             }
         }
 
@@ -105,7 +106,7 @@ namespace CK3.Utils.BattleSimulator
                     var regiments = 380;
 
                     var regimentArmy = new Army(regiment.LocalizedName + " army") { { regiment, regiments*regiment.Stack } };
-                    var victor = simulator.SimulateBattle(regimentArmy, levyArmy);
+                    var battleResult = simulator.SimulateBattle(regimentArmy, levyArmy);
                     
                     //save result
                     var result = new SimulationResult()
@@ -114,11 +115,10 @@ namespace CK3.Utils.BattleSimulator
                         Count = regiments,
                         Killed = levyArmy.GetFatalCasualties(),
                         Lost = regimentArmy.GetFatalCasualties(),
-                        Won = victor == regimentArmy
+                        Won = battleResult.Winner == regimentArmy,
+                        Days = battleResult.Days
                     };
                     results.Add(result);
-                    
-                
             }
 
 //            Console.Clear();
@@ -132,7 +132,7 @@ namespace CK3.Utils.BattleSimulator
                     $"{simulationResult} | 1 regiment vs {Math.Round((double)TestLevySize / simulationResult.Count, 0),-3:N0} levies " +
                     $"| Lost {simulationResult.Lost / ((double)simulationResult.Count * simulationResult.Regiment.Stack):P2} soldiers Killed {simulationResult.Killed,-6} levies" +
                     //$"Metric = {simulationResult.Regiment.Stack* Math.Sqrt(simulationResult.Regiment.Damage*simulationResult.Regiment.Toughness):F0}" +
-                    $"{(simulationResult.Won?" WON":" LOST")}");
+                    $"{(simulationResult.Won?" WON":" LOST")} | {simulationResult.Days} days");
             }
         }
 
@@ -152,7 +152,7 @@ namespace CK3.Utils.BattleSimulator
                     var levyArmy = new Army("Levy army") { { Regiment.Levies, TestLevySize } }; //compare with TestLevySize levies
 
                     var regimentArmy = new Army(regiment.LocalizedName + " army") { { regiment, j * regiment.Stack } };
-                    var victor = simulator.SimulateBattle(regimentArmy, levyArmy);
+                    var battleResult = simulator.SimulateBattle(regimentArmy, levyArmy);
 
                     //increase number of regiments for as long as levies win
                     
@@ -163,13 +163,10 @@ namespace CK3.Utils.BattleSimulator
                         Count = j,
                         Killed = levyArmy.GetFatalCasualties(),
                         Lost = regimentArmy.GetFatalCasualties(),
-                        Won = true
+                        Won = true,
+                        Days = battleResult.Days
                     };
                     results.Add(result);
-                    if (result.Killed == 99999)
-                    {
-
-                    }
                 }
             }
 
