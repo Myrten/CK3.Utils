@@ -1,0 +1,64 @@
+﻿{
+  "end_game": {//max tech, 3 duchies, 8 counties
+    "heavy_infantry": { //all available bonuses for this unit type - assuming we use all duchy and county building slots for boosting this unit type
+      "damage": 0, //sum of all damage bonuses
+      "toughness": 0,
+      "pursuit": 0,
+      "screen": 0,
+      "damage_multiplier": 1.0, //1+ sum of all damage multipliers - for example 90% bonus is 1.9
+      "toughness_multiplier": 1.0,
+      "pursuit_multiplier": 1.0,
+      "screen_multiplier": 1.0
+    },
+    "pikemen": {
+      "damage": 0,
+      "toughness": 0,
+      "pursuit": 0,
+      "screen": 0,
+      "damage_multiplier": 1.0,
+      "toughness_multiplier": 1.0,
+      "pursuit_multiplier": 1.0,
+      "screen_multiplier": 1.0
+    },
+    "archers": {
+      "damage": 0,
+      "toughness": 0,
+      "pursuit": 0,
+      "screen": 0,
+      "damage_multiplier": 1.0,
+      "toughness_multiplier": 1.0,
+      "pursuit_multiplier": 1.0,
+      "screen_multiplier": 1.0
+    },
+    "skirmishers": {
+      "damage": 0,
+      "toughness": 0,
+      "pursuit": 0,
+      "screen": 0,
+      "damage_multiplier": 1.0,
+      "toughness_multiplier": 1.0,
+      "pursuit_multiplier": 1.0,
+      "screen_multiplier": 1.0
+    },
+    "heavy_cavalry": {
+      "damage": 0,
+      "toughness": 0,
+      "pursuit": 0,
+      "screen": 0,
+      "damage_multiplier": 1.0,
+      "toughness_multiplier": 1.0,
+      "pursuit_multiplier": 1.0,
+      "screen_multiplier": 1.0
+    },
+    "light_cavalry": {
+      "damage": 0,
+      "toughness": 0,
+      "pursuit": 0,
+      "screen": 0,
+      "damage_multiplier": 1.0,
+      "toughness_multiplier": 1.0,
+      "pursuit_multiplier": 1.0,
+      "screen_multiplier": 1.0
+    }
+  }
+}

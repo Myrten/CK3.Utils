@@ -6,6 +6,7 @@ using System.Linq;
 using CK3.Utils.BattleSimulator.Data;
 using CK3.Utils.BattleSimulator.DataExtraction;
 using CK3.Utils.BattleSimulator.Simulation;
+using Newtonsoft.Json;
 
 namespace CK3.Utils.BattleSimulator
 {
@@ -26,9 +27,8 @@ namespace CK3.Utils.BattleSimulator
             //regiments.Add(Regiment.Knights15Prowess);
             //regiments.Add(Regiment.Levies);
 
-
             var regimentsToTest = regiments.Where(regiment => regiment.Damage != 0).ToArray();
-            
+
             CreateWinningBattlesRanking(regimentsToTest);
             Console.WriteLine();
             CreateDamageRanking(regimentsToTest);
