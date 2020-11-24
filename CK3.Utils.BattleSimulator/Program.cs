@@ -103,7 +103,7 @@ namespace CK3.Utils.BattleSimulator
                 
                     var levyArmy = new Army("Levy army") { { Regiment.Levies, TestLevySize } }; //compare with TestLevySize levies
 
-                    var regiments = 380;
+                    var regiments = 500;
 
                     var regimentArmy = new Army(regiment.LocalizedName + " army") { { regiment, regiments*regiment.Stack } };
                     var battleResult = simulator.SimulateBattle(regimentArmy, levyArmy);

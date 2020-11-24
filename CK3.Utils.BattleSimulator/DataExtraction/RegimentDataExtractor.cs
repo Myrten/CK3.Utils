@@ -19,7 +19,7 @@ namespace CK3.Utils.BattleSimulator.DataExtraction
 
             var locDict = RegimentLocalization.Parse(locPath);
 
-            var regimentsPath = Path.Combine(gameDirectory, @"game\common\regiment_types\");
+            var regimentsPath = Path.Combine(gameDirectory, @"game\common\men_at_arms_types\");
 
             var regiments = new List<Regiment>();
             foreach (var filePath in Directory.GetFiles(regimentsPath, "*.txt"))
