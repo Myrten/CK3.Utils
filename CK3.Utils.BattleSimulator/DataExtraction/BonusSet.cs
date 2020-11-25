@@ -25,5 +25,27 @@ namespace CK3.Utils.BattleSimulator.DataExtraction
 
         [JsonProperty("light_cavalry")]
         public RegimentBonuses LightCavalry { get; set; }
+
+        public RegimentBonuses GetBonusesForType(string type)
+        {
+            switch (type)
+            {
+                case "heavy_infantry":
+                    return HeavyInfantry;
+
+                case "pikemen":
+                    return Pikeman;
+                case "archers":
+                    return Archers;
+                case "skirmishers":
+                    return Skirmishers;
+                case "heavy_cavalry":
+                    return HeavyCavalry;
+                case "light_cavalry":
+                    return LightCavalry;
+                default:
+                    throw new ArgumentOutOfRangeException(type);
+            }
+        }
     }
 }

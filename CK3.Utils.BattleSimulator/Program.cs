@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using CK3.Utils.BattleSimulator.Data;
 using CK3.Utils.BattleSimulator.DataExtraction;
+using CK3.Utils.BattleSimulator.Ranking;
 using CK3.Utils.BattleSimulator.Simulation;
 using Newtonsoft.Json;
 
@@ -27,18 +28,37 @@ namespace CK3.Utils.BattleSimulator
             //regiments.Add(Regiment.Knights15Prowess);
             //regiments.Add(Regiment.Levies);
 
+
             var regimentsToTest = regiments.Where(regiment => regiment.Damage != 0).ToArray();
 
-            CreateWinningBattlesRanking(regimentsToTest);
             Console.WriteLine();
-            CreateDamageRanking(regimentsToTest);
+            Console.WriteLine("Base values without any modifiers");
+            Console.WriteLine();
 
-            ToCsv(regimentsToTest);
+            PrintWinRating(regimentsToTest);
+            Console.WriteLine();
+            PrintDamageRanking(regimentsToTest,500);
+
+            var bonuses = JsonConvert.DeserializeObject<Bonuses>(File.ReadAllText("bonuses.json"));
+            var regimentsWithBonuses = regimentsToTest.Select(r => r.GetCloneWithBonuses(bonuses.EndGame)).ToArray();
+
+            Console.WriteLine();
+            Console.WriteLine("Values with 10x county and 3x duchy highest level buildings giving bonus to given unit type");
+            Console.WriteLine();
+
+            PrintWinRating(regimentsWithBonuses);
+            Console.WriteLine();
+            PrintDamageRanking(regimentsWithBonuses,130);
+
+
+            CreateDamageProfileCsv(regimentsWithBonuses);
+            CreateRanking(regimentsWithBonuses);
         }
 
 
-        static void CreateWinningBattlesRanking(Regiment[] regimentsToTest)
+        static void PrintWinRating(Regiment[] regimentsToTest)
         {
+            Console.WriteLine($"Minimum number of regiments required to win against {TestLevySize} levies");
             var simulator = new Simulation.BattleSimulator();
 
             var results = new List<SimulationResult>();
@@ -47,7 +67,7 @@ namespace CK3.Utils.BattleSimulator
             {
                 var regiment = regimentsToTest[i];
                 //Console.Write("\r" + new string(' ', Console.WindowWidth));
-                Console.Write($"\rSimulating {i}/{regimentsToTest.Length}");
+                //Console.Write($"\rSimulating {i}/{regimentsToTest.Length}");
                 //start from single regiment 
                 for (int j = 1;; j++)
                 {
@@ -62,7 +82,7 @@ namespace CK3.Utils.BattleSimulator
                     //save result
                     var result = new SimulationResult()
                     {
-                        Regiment = regiment, Count = j, Killed = levyArmy.GetFatalCasualties(),
+                        Regiment = regiment, RegimentCount = j, Killed = levyArmy.GetFatalCasualties(),
                         Lost = regimentArmy.GetFatalCasualties(),
                         Won = true,
                         Days = battleResult.Days
@@ -72,24 +92,25 @@ namespace CK3.Utils.BattleSimulator
                 }
             }
 
-            Console.Clear();
+            //Console.Clear();
 
             //order results from best to worst and print on console
-            results = results.OrderBy(r => r.Count).ToList();
+            results = results.OrderBy(r => r.RegimentCount).ToList();
 
             foreach (var simulationResult in results)
             {
                 Console.WriteLine(
-                    $"{simulationResult} | 1 regiment = {Math.Round((double) TestLevySize / simulationResult.Count, 0),-3:N0} levies " +
-                    $"| Lost {simulationResult.Lost / ((double) simulationResult.Count * simulationResult.Regiment.Stack):P2} soldiers Killed {simulationResult.Killed,-6} levies" +
+                    $"{simulationResult} | 1 regiment = {Math.Round((double) TestLevySize / simulationResult.RegimentCount, 0),-3:N0} levies " +
+                    $"| Lost {simulationResult.Lost / ((double) simulationResult.RegimentCount * simulationResult.Regiment.Stack):P2} soldiers Killed {simulationResult.Killed,-6} levies" +
                     //$"Metric = {simulationResult.Regiment.Stack* Math.Sqrt(simulationResult.Regiment.Damage*simulationResult.Regiment.Toughness):F0}" +
                     $" | {simulationResult.Days} days");
             }
         }
 
 
-        static void CreateDamageRanking(Regiment[] regimentsToTest)
+        static void PrintDamageRanking(Regiment[] regimentsToTest, int regimentCount = 250)
         {
+            Console.WriteLine($"Damage done by {regimentCount} regiments vs {TestLevySize} levies");
             var simulator = new Simulation.BattleSimulator();
 
             var results = new List<SimulationResult>();
@@ -103,16 +124,14 @@ namespace CK3.Utils.BattleSimulator
                 
                     var levyArmy = new Army("Levy army") { { Regiment.Levies, TestLevySize } }; //compare with TestLevySize levies
 
-                    var regiments = 500;
-
-                    var regimentArmy = new Army(regiment.LocalizedName + " army") { { regiment, regiments*regiment.Stack } };
+                    var regimentArmy = new Army(regiment.LocalizedName + " army") { { regiment, regimentCount * regiment.Stack } };
                     var battleResult = simulator.SimulateBattle(regimentArmy, levyArmy);
                     
                     //save result
                     var result = new SimulationResult()
                     {
                         Regiment = regiment,
-                        Count = regiments,
+                        RegimentCount = regimentCount,
                         Killed = levyArmy.GetFatalCasualties(),
                         Lost = regimentArmy.GetFatalCasualties(),
                         Won = battleResult.Winner == regimentArmy,
@@ -129,14 +148,97 @@ namespace CK3.Utils.BattleSimulator
             foreach (var simulationResult in results)
             {
                 Console.WriteLine(
-                    $"{simulationResult} | 1 regiment vs {Math.Round((double)TestLevySize / simulationResult.Count, 0),-3:N0} levies " +
-                    $"| Lost {simulationResult.Lost / ((double)simulationResult.Count * simulationResult.Regiment.Stack):P2} soldiers Killed {simulationResult.Killed,-6} levies" +
+                    $"{simulationResult} | 1 regiment vs {Math.Round((double)TestLevySize / simulationResult.RegimentCount, 0),-3:N0} levies " +
+                    $"| Lost {simulationResult.Lost / ((double)simulationResult.RegimentCount * simulationResult.Regiment.Stack):P2} soldiers Killed {simulationResult.Killed,-6} levies" +
                     //$"Metric = {simulationResult.Regiment.Stack* Math.Sqrt(simulationResult.Regiment.Damage*simulationResult.Regiment.Toughness):F0}" +
                     $"{(simulationResult.Won?" WON":" LOST")} | {simulationResult.Days} days");
             }
         }
 
-        static void ToCsv(Regiment[] regimentsToTest)
+        static void CreateRanking(Regiment[] regimentsToTest)
+        {
+            Console.WriteLine();
+            Console.WriteLine($"Ranking vs {TestLevySize} levies");
+            Console.WriteLine("Win - minimum number of regiments to win. Damage - minimum number of regiments to wipe");
+            Console.WriteLine();
+            var simulator = new Simulation.BattleSimulator();
+
+            var results = new List<SimulationResult>();
+            var resDict = new Dictionary<RegimentRanking, List<SimulationResult>>();
+            const int count = 1000;
+
+            foreach (var regiment in regimentsToTest)
+            {
+                var ranking = new RegimentRanking() {Regiment = regiment};
+                resDict[ranking] = new List<SimulationResult>();
+                for (int j = 1; j < count + 1; j++)
+                {
+                    var levyArmy = new Army("Levy army") { { Regiment.Levies, TestLevySize } }; //compare with TestLevySize levies
+
+                    var regimentArmy = new Army(regiment.LocalizedName + " army") { { regiment, j * regiment.Stack } };
+                    var battleResult = simulator.SimulateBattle(regimentArmy, levyArmy);
+
+                    //save result
+                    var result = new SimulationResult()
+                    {
+                        Regiment = regiment,
+                        RegimentCount = j,
+                        Killed = levyArmy.GetFatalCasualties(),
+                        Lost = regimentArmy.GetFatalCasualties(),
+                        Won = battleResult.Winner == regimentArmy,
+                        Days = battleResult.Days
+                    };
+                    resDict[ranking].Add(result);
+                    results.Add(result);
+                }
+            }
+
+            //var leviesKilledOnWinWithoutPursuitOrWipe = TestLevySize * (BattleSimulationConstants.FatalCasualtiesRatio)+(TestLevySize*(1-BattleSimulationConstants.FatalCasualtiesRatio))*BattleSimulationConstants.LeftBehindRatio;
+
+            foreach (var pair in resDict)
+            {
+                var rating = pair.Key;
+                foreach (var result in pair.Value)
+                {
+                    if (rating.WinRating == 0 && result.Won)
+                    {
+                        rating.WinRating = result.RegimentCount;
+                    }
+                    if (rating.DamageRating == 0 && result.Killed >= TestLevySize)
+                    {
+                        rating.DamageRating = result.RegimentCount;
+                    }
+                }
+            }
+
+            var winRanking = resDict.Select(rd => rd.Key).OrderBy(r => r.WinRating).ToArray();
+            for (int i = 0; i < winRanking.Length; i++)
+            {
+                winRanking[i].WinRank = i + 1;
+            }
+
+            var damageRanking = resDict.Select(rd => rd.Key).OrderBy(r => r.DamageRating).ToArray();
+            for (int i = 0; i < winRanking.Length; i++)
+            {
+                damageRanking[i].DamageRank = i + 1;
+            }
+
+            foreach (var regimentRanking in winRanking)
+            {
+                Console.WriteLine(regimentRanking);
+            }
+
+
+            using var writer = File.CreateText("ratings.csv");
+            writer.WriteLine("Regiment;Win Rating;Damage Rating");
+            
+            foreach (var reg in winRanking)
+            {
+                writer.WriteLine($"[{reg.Regiment.GetRegimentTypeCode()}] {reg.Regiment};{reg.WinRating};{reg.DamageRating}");
+            }
+        }
+
+        static void CreateDamageProfileCsv(Regiment[] regimentsToTest)
         {
             var simulator = new Simulation.BattleSimulator();
 
@@ -160,7 +262,7 @@ namespace CK3.Utils.BattleSimulator
                     var result = new SimulationResult()
                     {
                         Regiment = regiment,
-                        Count = j,
+                        RegimentCount = j,
                         Killed = levyArmy.GetFatalCasualties(),
                         Lost = regimentArmy.GetFatalCasualties(),
                         Won = true,
@@ -170,9 +272,9 @@ namespace CK3.Utils.BattleSimulator
                 }
             }
 
-            var group = results.GroupBy(r => r.Count).OrderBy(g => g.Key).ToArray();
+            var group = results.GroupBy(r => r.RegimentCount).OrderBy(g => g.Key).ToArray();
 
-            using (var writer = File.CreateText("results.csv"))
+            using (var writer = File.CreateText("damage profile.csv"))
             {
                 writer.Write("Regiments;");
 
@@ -189,9 +291,9 @@ namespace CK3.Utils.BattleSimulator
                     writer.Write(grouping.Key+";");
                     foreach (var simulationResult in grouping.OrderBy(g=>g.Regiment.Name))
                     {
-                        if (pastResults[simulationResult.Regiment] == simulationResult.Killed)
-                            writer.Write(";");
-                        else
+                        //if (pastResults[simulationResult.Regiment] == simulationResult.Killed)
+                        //    writer.Write(";");
+                        //else
                         {
                             writer.Write(simulationResult.Killed + ";");
                             pastResults[simulationResult.Regiment] = simulationResult.Killed;
