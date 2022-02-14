@@ -9,20 +9,23 @@ namespace CK3.Utils.BattleSimulator.DataExtraction
         public Dictionary<string,string> Localizations { get; set; }
         static readonly Regex LineRegex = new Regex("(\\w+):\\d\\s+\\\"(?:#F )?([^#]+)(?:#\\!)?\\\"");
 
-        public static RegimentLocalization Parse(string path)
+        public static RegimentLocalization Parse(params string[] paths)
         {
-            var lines = File.ReadAllLines(path);
             var dict = new RegimentLocalization();
             dict.Localizations = new Dictionary<string, string>();
-            foreach (var line in lines)
+
+            foreach (var path in paths)
             {
-                var parsed = LineRegex.Match(line);
-                if (parsed.Success)
+                var lines = File.ReadAllLines(path);
+                foreach (var line in lines)
                 {
-                    dict.Localizations[parsed.Groups[1].Value] = parsed.Groups[2].Value;
+                    var parsed = LineRegex.Match(line);
+                    if (parsed.Success)
+                    {
+                        dict.Localizations[parsed.Groups[1].Value] = parsed.Groups[2].Value;
+                    }
                 }
             }
-
             return dict;
         }
     }

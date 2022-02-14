@@ -1,12 +1,12 @@
 ﻿{
-  "end_game": {//max tech, 3 duchies, 8 counties
+  "end_game": { //max tech, 3 duchies, 8 counties
     "heavy_infantry": { //all available bonuses for this unit type - assuming we use all duchy and county building slots for boosting this unit type
       "damage": 0, //sum of all damage bonuses
       "toughness": 0,
       "pursuit": 0,
       "screen": 0,
-      "damage_multiplier": 3.25, //1+ sum of all damage multipliers - for example 90% bonus is 1.9
-      "toughness_multiplier": 3.35,
+      "damage_multiplier": 2.86, //1+ sum of all damage multipliers - for example 90% bonus is 1.9
+      "toughness_multiplier": 3.15,
       "pursuit_multiplier": 1.0,
       "screen_multiplier": 1.0
     },
@@ -15,8 +15,8 @@
       "toughness": 0,
       "pursuit": 0,
       "screen": 0,
-      "damage_multiplier": 3.25,
-      "toughness_multiplier": 3.35,
+      "damage_multiplier": 2.86,
+      "toughness_multiplier": 3.15,
       "pursuit_multiplier": 1.0,
       "screen_multiplier": 1.0
     },
@@ -25,8 +25,8 @@
       "toughness": 0,
       "pursuit": 0,
       "screen": 0,
-      "damage_multiplier": 4.15,
-      "toughness_multiplier": 2.25,
+      "damage_multiplier": 3.79,
+      "toughness_multiplier": 2.09,
       "pursuit_multiplier": 1.0,
       "screen_multiplier": 1.0
     },
@@ -35,8 +35,8 @@
       "toughness": 0,
       "pursuit": 0,
       "screen": 0,
-      "damage_multiplier": 3.50,
-      "toughness_multiplier": 2.25,
+      "damage_multiplier": 3.18,
+      "toughness_multiplier": 2.09,
       "pursuit_multiplier": 3.5,
       "screen_multiplier": 2.25
     },
@@ -45,8 +45,8 @@
       "toughness": 0,
       "pursuit": 0,
       "screen": 0,
-      "damage_multiplier": 4.15,
-      "toughness_multiplier": 3.35,
+      "damage_multiplier": 3.55,
+      "toughness_multiplier": 3.15,
       "pursuit_multiplier": 1.0,
       "screen_multiplier": 1.0
     },
@@ -59,6 +59,37 @@
       "toughness_multiplier": 2.7,
       "pursuit_multiplier": 3.5,
       "screen_multiplier": 2.7
+    },
+    "archer_cavalry": {
+      "damage": 0,
+      "toughness": 0,
+      "pursuit": 0,
+      "screen": 0,
+      "damage_multiplier": 1,
+      "toughness_multiplier": 1,
+      "pursuit_multiplier": 1,
+      "screen_multiplier": 1
+    },
+    "elephant_cavalry": {
+      "damage": 0,
+      "toughness": 0,
+      "pursuit": 0,
+      "screen": 0,
+      "damage_multiplier": 3.56,
+      "toughness_multiplier": 1.96,
+      "pursuit_multiplier": 1.0,
+      "screen_multiplier": 1.0
+    },
+    "camel_cavalry": {
+      "damage": 0,
+      "toughness": 0,
+      "pursuit": 0,
+      "screen": 0,
+      "damage_multiplier": 2.28,
+      "toughness_multiplier": 1.64,
+      "pursuit_multiplier": 1,
+      "screen_multiplier": 1
     }
+
   }
 }

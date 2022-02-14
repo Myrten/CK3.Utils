@@ -43,12 +43,12 @@ namespace CK3.Utils.BattleSimulator
             var regimentsWithBonuses = regimentsToTest.Select(r => r.GetCloneWithBonuses(bonuses.EndGame)).ToArray();
 
             Console.WriteLine();
-            Console.WriteLine("Values with 10x county and 3x duchy highest level buildings giving bonus to given unit type");
+            Console.WriteLine("Values with 8x county and 3x duchy highest level buildings giving bonus to given unit type");
             Console.WriteLine();
 
             PrintWinRating(regimentsWithBonuses);
             Console.WriteLine();
-            PrintDamageRanking(regimentsWithBonuses,130);
+            PrintDamageRanking(regimentsWithBonuses,200);
 
 
             CreateDamageProfileCsv(regimentsWithBonuses);

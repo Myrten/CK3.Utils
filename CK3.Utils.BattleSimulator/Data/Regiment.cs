@@ -85,6 +85,12 @@ namespace CK3.Utils.BattleSimulator.Data
                     return "HC";
                 case "light_cavalry":
                     return "LC";
+                case "elephant_cavalry":
+                    return "EC";
+                case "camel_cavalry":
+                    return "CC";
+                case "archer_cavalry":
+                    return "AC";
                 case "levies":
                     return "LV";
                 case "knights":

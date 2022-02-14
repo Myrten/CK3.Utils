@@ -25,6 +25,15 @@ namespace CK3.Utils.BattleSimulator.DataExtraction
 
         [JsonProperty("light_cavalry")]
         public RegimentBonuses LightCavalry { get; set; }
+        
+        [JsonProperty("archer_cavalry")]
+        public RegimentBonuses ArcherCavalry { get; set; }
+        
+        [JsonProperty("elephant_cavalry")]
+        public RegimentBonuses ElephantCavalry { get; set; }
+        
+        [JsonProperty("camel_cavalry")]
+        public RegimentBonuses CamelCavalry { get; set; }
 
         public RegimentBonuses GetBonusesForType(string type)
         {
@@ -43,6 +52,12 @@ namespace CK3.Utils.BattleSimulator.DataExtraction
                     return HeavyCavalry;
                 case "light_cavalry":
                     return LightCavalry;
+                case "archer_cavalry":
+                    return ArcherCavalry;
+                case "elephant_cavalry":
+                    return ElephantCavalry;
+                case "camel_cavalry":
+                    return CamelCavalry;
                 default:
                     throw new ArgumentOutOfRangeException(type);
             }

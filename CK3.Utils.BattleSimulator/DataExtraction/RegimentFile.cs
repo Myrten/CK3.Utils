@@ -60,6 +60,9 @@ namespace CK3.Utils.BattleSimulator.DataExtraction
                         case "terrain_bonus":
                             parser.ReadInsideBrackets(p2=>{});
                             break;
+                        case "winter_bonus":
+                            parser.ReadInsideBrackets(p2 => { });
+                            break;
                         case "stack":
                             regiment.Stack = parser.ReadInt32();
                             break;
