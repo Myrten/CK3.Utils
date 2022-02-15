@@ -165,7 +165,7 @@ namespace CK3.Utils.BattleSimulator
 
             var results = new List<SimulationResult>();
             var resDict = new Dictionary<RegimentRanking, List<SimulationResult>>();
-            const int count = 1000;
+            const int count = 10000;
 
             foreach (var regiment in regimentsToTest)
             {
@@ -190,26 +190,38 @@ namespace CK3.Utils.BattleSimulator
                     };
                     resDict[ranking].Add(result);
                     results.Add(result);
+
+                    if(ranking.WinRating == 0 && result.Won)
+                    {
+                        ranking.WinRating = result.RegimentCount;
+
+                    }
+                    if (ranking.DamageRating == 0 && result.Killed >= TestLevySize)
+                    {
+                        ranking.DamageRating = result.RegimentCount;
+                        if(result.Won)
+                            break;
+                    }
                 }
             }
 
             //var leviesKilledOnWinWithoutPursuitOrWipe = TestLevySize * (BattleSimulationConstants.FatalCasualtiesRatio)+(TestLevySize*(1-BattleSimulationConstants.FatalCasualtiesRatio))*BattleSimulationConstants.LeftBehindRatio;
 
-            foreach (var pair in resDict)
-            {
-                var rating = pair.Key;
-                foreach (var result in pair.Value)
-                {
-                    if (rating.WinRating == 0 && result.Won)
-                    {
-                        rating.WinRating = result.RegimentCount;
-                    }
-                    if (rating.DamageRating == 0 && result.Killed >= TestLevySize)
-                    {
-                        rating.DamageRating = result.RegimentCount;
-                    }
-                }
-            }
+            //foreach (var pair in resDict)
+            //{
+            //    var rating = pair.Key;
+            //    foreach (var result in pair.Value)
+            //    {
+            //        if (rating.WinRating == 0 && result.Won)
+            //        {
+            //            rating.WinRating = result.RegimentCount;
+            //        }
+            //        if (rating.DamageRating == 0 && result.Killed >= TestLevySize)
+            //        {
+            //            rating.DamageRating = result.RegimentCount;
+            //        }
+            //    }
+            //}
 
             var winRanking = resDict.Select(rd => rd.Key).OrderBy(r => r.WinRating).ToArray();
             for (int i = 0; i < winRanking.Length; i++)
