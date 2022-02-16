@@ -22,6 +22,7 @@ namespace CK3.Utils.BattleSimulator
 
             //data extraction
             var dataExtractor = new RegimentDataExtractor(gamePath);
+            dataExtractor.ExtractRegimentCostsFromFiles();
             var regiments = dataExtractor.ExtractRegimentsFromFiles();
             
             //levies and 15 prowess knights for comparison

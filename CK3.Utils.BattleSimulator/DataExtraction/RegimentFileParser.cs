@@ -5,16 +5,17 @@ using Pdoxcl2Sharp;
 
 namespace CK3.Utils.BattleSimulator.DataExtraction
 {
-    public class RegimentFile :  IParadoxRead
+    public class RegimentFileParser :  IParadoxRead
     {
+        public Dictionary<string, double> Variables { get; }
         readonly RegimentLocalization regimentLocalization;
 
-        public RegimentFile(RegimentLocalization regimentLocalization)
+        public RegimentFileParser(Dictionary<string,double> variables,  RegimentLocalization regimentLocalization)
         {
+            Variables = variables;
             this.regimentLocalization = regimentLocalization;
         }
         public List<Regiment> Regiments { get; set; } = new List<Regiment>();
-        public Dictionary<string, double> Variables { get; set; } = new Dictionary<string, double>();
         public void TokenCallback(ParadoxParser parser, string token)
         {
             token = token.Replace(@"ï»¿", "");
@@ -99,6 +100,12 @@ namespace CK3.Utils.BattleSimulator.DataExtraction
                         case "buy_cost":
                             regiment.BuyCost = ReadCost(p);
                             break;
+                        case "low_maintenance_cost":
+                            regiment.LowMaintenanceCost = ReadCost(p);
+                            break;
+                        case "high_maintenance_cost":
+                            regiment.HighMaintenanceCost = ReadCost(p);
+                            break;
                         default:
                             break;
                     }
@@ -108,33 +115,6 @@ namespace CK3.Utils.BattleSimulator.DataExtraction
 
                 });
             }
-        }
-
-        public void ReadEraBonus(ParadoxParser eraParser)
-        {
-            
-                var bonus = new EraBonus();
-                bonus.Era = eraParser.ReadString();
-                eraParser.ReadInsideBrackets(p =>
-                {
-                    switch (p.ReadString())
-                    {
-                        case "damage":
-                            bonus.Damage = p.ReadInt32();
-                            break;
-                        case "toughness":
-                            bonus.Toughness = p.ReadInt32();
-                            break;
-                        case "pursuit":
-                            bonus.Pursuit = p.ReadInt32();
-                            break;
-                        case "screen":
-                            bonus.Screen = p.ReadInt32();
-                            break;
-                        default:
-                            break;
-                    }
-                });
         }
 
         // doesn't work

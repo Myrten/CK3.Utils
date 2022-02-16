@@ -12,7 +12,7 @@ namespace CK3.Utils.BattleSimulator.DataExtraction
         readonly string gameDirectory;
 
         readonly string[] RegimentLocPaths;
-
+        readonly Dictionary<string, double> variables = new Dictionary<string, double>();
         public RegimentDataExtractor(string gameDirectory)
         {
             this.gameDirectory = gameDirectory;
@@ -28,22 +28,29 @@ namespace CK3.Utils.BattleSimulator.DataExtraction
 
             var regimentsPath = Path.Combine(gameDirectory, @"game\common\men_at_arms_types\");
 
-            var regiments = new List<Regiment>();
+
+            var fileP = new RegimentFileParser(variables,locDict);
+            
             foreach (var filePath in Directory.GetFiles(regimentsPath, "*.txt"))
             {
-                using (FileStream fs = new FileStream(filePath, FileMode.Open))
-                {
-                    var file = ParadoxParser.Parse(fs, new RegimentFile(locDict));
-                    regiments.AddRange(file.Regiments);
-                }
+                using FileStream fs = new FileStream(filePath, FileMode.Open);
+                ParadoxParser.Parse(fs, fileP);
             }
 
+            var regiments = fileP.Regiments;
             var errorRegiment = regiments.FirstOrDefault(r => r.Damage < 0 || r.Toughness < 0 || r.Pursuit < 0 || r.Screen < 0);
 
             if (errorRegiment != null)
                 throw new InvalidOperationException($"Invalid regiment: {errorRegiment} {errorRegiment.Damage} {errorRegiment.Toughness}T {errorRegiment.Pursuit} {errorRegiment.Screen}S ");
 
             return regiments;
+        }
+
+        public void ExtractRegimentCostsFromFiles()
+        {
+            var costFile = Path.Combine(gameDirectory, @"game\common\script_values\00_men_at_arms_values.txt");
+            using FileStream fs = new FileStream(costFile, FileMode.Open);
+            var file = ParadoxParser.Parse(fs, new RegimentCostFileParser(variables));
         }
     }
 }
