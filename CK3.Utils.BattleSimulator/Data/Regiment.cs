@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using CK3.Utils.BattleSimulator.DataExtraction;
 
 namespace CK3.Utils.BattleSimulator.Data
@@ -35,6 +37,15 @@ namespace CK3.Utils.BattleSimulator.Data
         {
             var bonusesForType = bonuses.GetBonusesForType(Type);
             var clone = (Regiment) MemberwiseClone();
+            
+            if (EraBonuses != null)
+            {
+                var eraBonus = EraBonuses.Last().Value;
+                clone.Damage += eraBonus.Damage;
+                clone.Toughness += eraBonus.Toughness;
+                clone.Pursuit += eraBonus.Pursuit;
+                clone.Screen += eraBonus.Screen;
+            }
 
             clone.Damage += bonusesForType.Damage;
             clone.Damage = (int) (clone.Damage * bonusesForType.DamageMultiplier);
@@ -59,6 +70,8 @@ namespace CK3.Utils.BattleSimulator.Data
         public int Pursuit { get; set; }
         public int Screen { get; set; }
         public int Stack { get; set; } = 1;
+
+        public Dictionary<string, EraBonus> EraBonuses { get; set; }
 
         //not yet implemented
         public double BuyCost { get; set; }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Security.Cryptography;
 using CK3.Utils.BattleSimulator.Data;
 using Pdoxcl2Sharp;
 
@@ -63,6 +64,35 @@ namespace CK3.Utils.BattleSimulator.DataExtraction
                         case "winter_bonus":
                             parser.ReadInsideBrackets(p2 => { });
                             break;
+                        case "era_bonus":
+                            regiment.EraBonuses = new Dictionary<string, EraBonus>();
+                            parser.ReadInsideBrackets(eraParser =>
+                            {
+                                var bonus = new EraBonus();
+                                bonus.Era = eraParser.ReadString();
+                                eraParser.ReadInsideBrackets(p =>
+                                {
+                                    switch (p.ReadString())
+                                    {
+                                        case "damage":
+                                            bonus.Damage = p.ReadInt32();
+                                            break;
+                                        case "toughness":
+                                            bonus.Toughness = p.ReadInt32();
+                                            break;
+                                        case "pursuit":
+                                            bonus.Pursuit = p.ReadInt32();
+                                            break;
+                                        case "screen":
+                                            bonus.Screen = p.ReadInt32();
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                });
+                                regiment.EraBonuses[bonus.Era] = bonus;
+                            });
+                            break;
                         case "stack":
                             regiment.Stack = parser.ReadInt32();
                             break;
@@ -78,6 +108,33 @@ namespace CK3.Utils.BattleSimulator.DataExtraction
 
                 });
             }
+        }
+
+        public void ReadEraBonus(ParadoxParser eraParser)
+        {
+            
+                var bonus = new EraBonus();
+                bonus.Era = eraParser.ReadString();
+                eraParser.ReadInsideBrackets(p =>
+                {
+                    switch (p.ReadString())
+                    {
+                        case "damage":
+                            bonus.Damage = p.ReadInt32();
+                            break;
+                        case "toughness":
+                            bonus.Toughness = p.ReadInt32();
+                            break;
+                        case "pursuit":
+                            bonus.Pursuit = p.ReadInt32();
+                            break;
+                        case "screen":
+                            bonus.Screen = p.ReadInt32();
+                            break;
+                        default:
+                            break;
+                    }
+                });
         }
 
         // doesn't work
