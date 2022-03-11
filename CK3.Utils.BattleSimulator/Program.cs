@@ -32,6 +32,21 @@ namespace CK3.Utils.BattleSimulator
 
             var regimentsToTest = regiments.Where(regiment => regiment.Damage != 0).ToArray();
 
+            var bonuses = JsonConvert.DeserializeObject<Bonuses>(File.ReadAllText("bonuses.json"));
+            var regimentsWithBonuses = regimentsToTest.Select(r => r.GetCloneWithBonuses(bonuses.EndGame)).ToArray();
+
+           // PrintWinRatingDual(regimentsToTest);
+
+            PrintSingleRegimentRatings(regimentsToTest, regimentsWithBonuses);
+
+            //CreateDamageProfileCsv(regimentsWithBonuses);
+        }
+
+
+
+
+        static void PrintSingleRegimentRatings(Regiment[] regimentsToTest, Regiment[] regimentsWithBonuses)
+        {
             Console.WriteLine("");
             Console.WriteLine("[B]Base values without any modifiers[B]");
             Console.WriteLine();
@@ -49,13 +64,12 @@ namespace CK3.Utils.BattleSimulator
             Console.WriteLine("[Code]");
 
             CreateMaintenanceRanking(regimentsToTest);
-            
+
             Console.WriteLine("[/Code]");
             Console.WriteLine();
-            var bonuses = JsonConvert.DeserializeObject<Bonuses>(File.ReadAllText("bonuses.json"));
-            var regimentsWithBonuses = regimentsToTest.Select(r => r.GetCloneWithBonuses(bonuses.EndGame)).ToArray();
-            
-            Console.WriteLine("[B]Values with 8x county and 3x duchy highest level buildings giving bonus to given unit type[/B]");
+
+            Console.WriteLine(
+                "[B]Values with 8x county and 3x duchy highest level buildings giving bonus to given unit type[/B]");
             Console.WriteLine("[Code]");
 
             PrintWinRating(regimentsWithBonuses);
@@ -71,8 +85,6 @@ namespace CK3.Utils.BattleSimulator
             CreateRanking(regimentsWithBonuses);
 
             Console.WriteLine("[/Code]");
-
-            //CreateDamageProfileCsv(regimentsWithBonuses);
         }
 
 
@@ -165,7 +177,7 @@ namespace CK3.Utils.BattleSimulator
             //            Console.Clear();
 
             //order results from best to worst and print on console
-            results = results.OrderByDescending(r => r.Killed).ToList();
+            results = results.OrderByDescending(r => r.Killed).ThenBy(r=>r.Days).ToList();
 
             foreach (var simulationResult in results)
             {
@@ -259,6 +271,7 @@ namespace CK3.Utils.BattleSimulator
             }
             
         }
+        
 
         static void CreateRanking(Regiment[] regimentsToTest)
         {
@@ -421,6 +434,73 @@ namespace CK3.Utils.BattleSimulator
                 }
             }
 
+        }
+
+
+        static void PrintWinRatingDual(Regiment[] regimentsToTest)
+        {
+            Console.WriteLine($"Minimum number of regiments required to win against {TestLevySize} levies");
+            var simulator = new Simulation.BattleSimulator();
+
+            var results = new List<MultiRegimentSimulationResult>();
+
+            for (var i = 0; i < regimentsToTest.Length; i++)
+            {
+                var firstRegiment = regimentsToTest[i];
+                for (int j = i ; j < regimentsToTest.Length; j++)
+                {
+                    var secondRegiment = regimentsToTest[j];
+
+                    //Console.Write("\r" + new string(' ', Console.WindowWidth));
+                    //Console.Write($"\rSimulating {i}/{regimentsToTest.Length}");
+                    //start from single regiment 
+                    for (int round = 1;; round++)
+                    {
+                        var levyArmy = new Army("Levy army")
+                            { { Regiment.Levies, TestLevySize } }; //compare with TestLevySize levies
+
+                        var regimentArmy = new Army($"{firstRegiment.LocalizedName}+{secondRegiment.LocalizedName} army")
+                        {
+                            { firstRegiment, round * firstRegiment.Stack }, 
+                            { secondRegiment, round * secondRegiment.Stack }
+                        };
+                        var battleResult = simulator.SimulateBattle(regimentArmy, levyArmy);
+
+                        //increase number of regiments for as long as levies win
+                        if (battleResult.Winner != regimentArmy) continue;
+
+                        //save result
+                        var result = new MultiRegimentSimulationResult()
+                        {
+                            Army = regimentArmy,
+                            Regiment = firstRegiment,
+                            RegimentCount = round,
+                            Killed = levyArmy.GetFatalCasualties(),
+                            Lost = regimentArmy.GetFatalCasualties(),
+                            Won = true,
+                            Days = battleResult.Days
+                        };
+                        results.Add(result);
+                        break;
+                    }
+                }
+            }
+
+            //Console.Clear();
+
+            //order results from best to worst and print on console
+            results = results.OrderBy(r => r.RegimentCount).ToList();
+            
+            //results.RemoveAll(r => !r.ToString().Contains("Elephants", StringComparison.InvariantCulture));
+
+            foreach (var simulationResult in results)
+            {
+                Console.WriteLine(
+                    $"{simulationResult} | 2 regiments = {Math.Round((double)TestLevySize / simulationResult.RegimentCount, 0),-3:N0} levies " +
+                    $"| Lost {simulationResult.Lost / ((double)simulationResult.RegimentCount * (simulationResult.Army.ArmyRegiments.Sum(r=>r.Regiment.Stack))):P2} soldiers Killed {simulationResult.Killed,-6} levies" +
+                    //$"Metric = {simulationResult.Regiment.Stack* Math.Sqrt(simulationResult.Regiment.Damage*simulationResult.Regiment.Toughness):F0}" +
+                    $" | {simulationResult.Days} days");
+            }
         }
     }
 }
