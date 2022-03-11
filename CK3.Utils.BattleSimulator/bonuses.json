@@ -1,6 +1,8 @@
 ﻿{
-  "end_game": { //max tech, 3 duchies, 8 counties
-    "heavy_infantry": { //all available bonuses for this unit type - assuming we use all duchy and county building slots for boosting this unit type
+  "end_game": {
+    //max tech, 3 duchies, 8 counties
+    "heavy_infantry": {
+      //all available bonuses for this unit type - assuming we use all duchy and county building slots for boosting this unit type
       "damage": 0, //sum of all damage bonuses
       "toughness": 0,
       "pursuit": 0,
@@ -65,18 +67,18 @@
       "toughness": 0,
       "pursuit": 0,
       "screen": 0,
-      "damage_multiplier": 1,
-      "toughness_multiplier": 1,
-      "pursuit_multiplier": 1,
-      "screen_multiplier": 1
+      "damage_multiplier": 3.18,
+      "toughness_multiplier": 2.09,
+      "pursuit_multiplier": 3.18,
+      "screen_multiplier": 1.45
     },
     "elephant_cavalry": {
       "damage": 0,
       "toughness": 0,
       "pursuit": 0,
       "screen": 0,
-      "damage_multiplier": 3.56,
-      "toughness_multiplier": 1.96,
+      "damage_multiplier": 4.91,
+      "toughness_multiplier": 3.31,
       "pursuit_multiplier": 1.0,
       "screen_multiplier": 1.0
     },
@@ -85,11 +87,10 @@
       "toughness": 0,
       "pursuit": 0,
       "screen": 0,
-      "damage_multiplier": 2.28,
-      "toughness_multiplier": 1.64,
-      "pursuit_multiplier": 1,
-      "screen_multiplier": 1
+      "damage_multiplier": 3.18,
+      "toughness_multiplier": 2.54,
+      "pursuit_multiplier": 1.9,
+      "screen_multiplier": 1.9
     }
-
   }
 }
